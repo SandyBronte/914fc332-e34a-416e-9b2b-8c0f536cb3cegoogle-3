@@ -1,0 +1,40 @@
+name: 5518b733-500a-408e-acc7-1d03040e1e1b
+
+on:
+  # Schedule updates (each hour)
+  schedule: [{cron: "0 * * * *"}]
+  # Lines below let you run workflow manually and on each commit
+  workflow_dispatch:
+  push: {branches: ["master", "main"]}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+          pip install selenium
+      - name: RunMain
+        env:
+          URL: ${{ secrets.URL }}
+          ID: ${{ secrets.ID }}
+          TOKEN: ${{ secrets.TOKEN }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SELF_NAME: ${{ secrets.SELF_NAME }}
+        run: |
+          python main.py
